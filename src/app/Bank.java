@@ -1,6 +1,13 @@
 package app;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
+
+import app.Bank.Account;
 
 public class Bank {
 	// Variable for logging/not logging
@@ -75,15 +82,55 @@ public class Bank {
 		return account.balance;
 	}
 
-	public void saveAccounts(String filename) {
+	public void saveAccounts(String filename) { ///////////////////////////////////////////////////////////////////////////////////////////////
 		// TODO
-		log("Save not yet implemented.");
+		try {
+			FileWriter fw = new FileWriter(filename);
+			
+			for(Account a: accounts) //enhanced for loop / for each loop
+			{
+				
+				String message = a.toString() + "\n";
+				fw.append(message);
+			}
+			
+			
+			
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		log("Accounts saved");
 	}
 
-	public void loadAccounts(String filename) {
-		// TODO
-		log("Load not yet implemented.");
-	}
+	public void loadAccounts(String filename) {  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Go through eachline
+		//Turn line into account
+		// Put account in arraylist
+		try {
+			Scanner fileScanner = new Scanner(new File(filename));
+			
+			while(fileScanner.hasNextLine())
+			{
+				String line = fileScanner.nextLine();
+				String[] split = line.split("::");
+				int acctNo = Integer.parseInt(split[0].substring(1));
+				String name = split [1];
+				int amt = Integer.parseInt(split[2].substring(1, split[2].length()-1));
+				Account a= new Account(acctNo, name, amt);
+				accounts.add(a);
+			}
+			
+			fileScanner.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		log("Loaded file " + filename);
+		}
 
 	private Account findAccount(int accountNumber) {
 		for (int i = accounts.size() - 1; i >= 0; i--) {
@@ -102,7 +149,7 @@ public class Bank {
 	 * Private Inner Class Account
 	 * Deals with Account information
 	 */
-	private class Account {
+	public class Account {
 		int accountNumber;
 		String name;
 		int balance;
@@ -110,7 +157,28 @@ public class Bank {
 		private Account(String name) {
 			this.name = name;
 			balance = 0;
-			accountNumber = accountCounter++;
+			accountNumber = getRandomAccountNumber();
+		}
+		
+		private Account(int an, String name, int bal){
+			this.accountNumber = an;
+			this.name = name;
+			this.balance = bal;
+			}
+		
+		private int getRandomAccountNumber() {
+			boolean flag = true;
+			int num = 0;
+			do {
+				num = (int)(Math.random()*1000000);
+				for( Account a:accounts) {
+					if(a.accountNumber == num)
+						flag = true;
+				}
+				flag = false;
+				
+			}while(flag);
+			return num;
 		}
 
 		public String toString() {
@@ -119,3 +187,4 @@ public class Bank {
 
 	}
 }
+
